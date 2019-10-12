@@ -11,7 +11,7 @@ class Navbar extends Component {
             href=""
             target="_blank"
             rel="noopener noreferrer"
-          >
+            >
             Ali Tester
           </a>
           <ul className="navbar-nav px-3">

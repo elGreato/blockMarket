@@ -3,15 +3,14 @@ import logo from '../logo.png';
 import './App.css';
 import Web3 from 'web3';
 import Navbar from './Navbar'
+import Main from './Main'
 //we need to import the contract that we created to interact with it from the front end
 import Marketplace from '../abis/Marketplace.json'
 
 class App extends Component {
   // this runs everytime the compnent gets created (life cycle component)
   async componentWillMount() {
-
     await this.loadWeb3();
-
     //call the functions here
     await this.loadBlockchainData();
   }
@@ -48,19 +47,20 @@ class App extends Component {
     const networkId= await web3.eth.net.getId()
     const networkData = Marketplace.networks[networkId]
 
+    
     //check if network has an id
     if (networkData){
       const address = networkData.address
       const marketplace = web3.eth.Contract(abi, address)
-      console.log(marketplace)
+      //for debudding reasons, check product count
+    const productcount = await marketplace.methods.productCount().call();
+    console.log(productcount.toString())
+      this.setState({marketplace: marketplace})
+      this.setState({loading: false})
 
     }else {
       window.alert('your contract is not deployed to the current network')
     }
-    
-
-    
-
   }
 
 
@@ -74,40 +74,31 @@ class App extends Component {
       products: [],
       loading: true
     }
+    //bind the function to props
+    this.createProduct = this.createProduct.bind(this)
+  }
+
+  createProduct(name,price){
+    //we have to tell react everytime that we are loading to change its state
+    this.setState({loading: true})
+    this.state.marketplace.methods.createProduct(name,price).send({from: this.state.account}).
+    once('receipt',(receipt) => {this.setState({ loading: false })})
   }
 
 
   render() {
     return (
       <div>
-        <Navbar account={this.state.account}/>
-        <div className="container-fluid mt-5">
+        <Navbar account={this.state.account} />
+        <div className="containter-fluid mt-5">
           <div className="row">
-            <main role="main" className="col-lg-12 d-flex text-center">
-              <div className="content mr-auto ml-auto">
-                <a
-                  href=""
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img src={logo} className="App-logo" alt="logo" />
-                </a>
-                <h1>elGreato Dapps</h1>
-                <p>
-                  Edit <code>src/components/App.js</code> and save to reload.
-                </p>
-                <a
-                  className="App-link"
-                  href="https://elgreato.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  LEARN BLOCKCHAIN <u><b>with elGreato! </b></u>
-                </a>
-              </div>
+            <main role="main" className="col-lg-12 d-flex">
+              {this.state.loading? <p>loading</p> : <Main createProduct ={ this.createProduct} />}
+              
             </main>
           </div>
         </div>
+        
       </div>
     );
   }
