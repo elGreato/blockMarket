@@ -2,63 +2,47 @@ import React, { Component } from 'react';
 import logo from '../logo.png';
 import './App.css';
 import Web3 from 'web3';
+import { Web3Provider } from 'react';
 
 class App extends Component {
-// this runs everytime the compnent gets created (life cycle component)
-    async componentWillMount(){
-     await this.loadWeb3();
+  // this runs everytime the compnent gets created (life cycle component)
+  async componentWillMount() {
 
-     //call the functions here
-     await this.loadBlockchainData();
-   
-   }
+    await this.loadWeb3();
+
+    //call the functions here
+    await this.loadBlockchainData();
+  }
 
   //to talk to blockchain we need web3.js 
-
-     async loadWeb3() {
-     
-       window.addEventListener('load', async () => {
-         if (window.ethereum) {
-           window.web3 = new Web3(window.ethereum);
-           await window.ethereum.enable();
-
-         } 
-
-         else if (window.web3) {
-          window.web3 = new Web3(window.web3.currentProvider);
-
-         }
-
-         else {
-          console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
-         }
-       });
-
-   }
-
-   //Fetch the account
-    async loadBlockchainData(){
-      const web3 = await window.web3
-      //load account
-
-      const acts = await web3.eth.getAccounts(console.log);
-   
-      //now we use the state component of react to save the state of our account
-      const aacts = [2,3,4]
-      this.setState({account: aacts[2]})
-
-     
-      
+  async loadWeb3() {
+    if (window.ethereum) {
+      window.web3 = new Web3(window.ethereum);
+      await window.ethereum.enable();
+    } else if (window.web3) {
+      window.web3 = new Web3(window.web3.currentProvider);
+    } else {
+      console.log("Non-Ethereum browser detected. You should consider trying MetaMask!");
     }
+  }
+  //Fetch the account
+  async loadBlockchainData() {
+    const web3 = window.web3
+    //load account
+    const acc = await web3.eth.getAccounts();
 
-    //constructor of React
+    //now we use the state component of react to save the state of our account      
+    this.setState({ account: acc[0] })
+  }
 
-    constructor(props){
-      super(props)
-      this.state = {
-        account:''
-      }
+  //constructor of React
+
+  constructor(props) {
+    super(props)
+    this.state = {
+      account: ''
     }
+  }
 
 
   render() {
@@ -74,7 +58,7 @@ class App extends Component {
             Ali Tester
           </a>
           <p>
-          {this.state.account}
+            {this.state.account}
           </p>
         </nav>
         <div className="container-fluid mt-5">
